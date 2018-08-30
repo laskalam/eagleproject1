@@ -5,7 +5,7 @@ SEED = 123456789
 TRAINING_PERCENT = 0.7
 Model = 'ABR'
 #Choice:
-MODELS= 'RF', 'ABR', 'BR', 'GBR', 'OLS', 'SGD', 'HR', 'DTR', 'ETR'
+MODELS= 'RF', 'ABR', 'BR', 'GBR', 'OLS', 'SVM', 'HR', 'DTR', 'ETR' #SGD
 
 from train_validate_data import train_validate_split as split
 #from FeatureSelection import SelectFeature
