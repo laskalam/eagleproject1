@@ -54,8 +54,8 @@ X_validate = Validate.drop(['Id', 'SalePrice'], axis = 1, inplace = True)#[model
 #Do some plots
 plt.clf()
 fig, axes = plt.subplots(3,3, sharex='col', sharey='row')
-x_lim = 4,7
-y_lim = 4,7
+x_lim = 10,13
+y_lim = 10,13
 k = -1
 for i, Model in enumerate(MODELS):
     Regressor, Name, Type = GetRegressor(Model)
