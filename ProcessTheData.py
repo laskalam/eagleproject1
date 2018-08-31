@@ -192,6 +192,7 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None,final_features=
         final_features=train.columns
         train['SalePrice']=SalePrice
 
+        train=train[~train.SalePrice.isnull()]
 
 
         return train,CatNum_features, final_features
@@ -297,7 +298,7 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None,final_features=
 
         train=train[final_features]
 
-
+        train=train[~train.SalePrice.isnull()]
         
         
         return train
