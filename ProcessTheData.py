@@ -36,7 +36,7 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None):
     train = train[train.GrLivArea < 4000]
     
     # Log transform the target for official scoring
-    if filename='train.csv' train.SalePrice = np.log1p(train.SalePrice)
+    train.SalePrice = np.log1p(train.SalePrice)
     
     #Removing features with more than x% missing data
 
