@@ -166,8 +166,8 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None):
         #Fit the Model
         selector.fit(data)
         features = selector.get_support(indices = True) #returns an array of integers corresponding to nonremoved features
-        features = [column for column in data[features]] #Array of all nonremoved features' names
-
+        Features = list(data)
+        features = [Features[i] for i in features] #Array of all nonremoved features' names
         #Format and Return
         selector = pd.DataFrame(selector.transform(data))
         selector.columns = features
