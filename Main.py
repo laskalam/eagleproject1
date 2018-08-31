@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,12 +12,19 @@ from train_validate_data import train_validate_split as split
 #from FeatureSelection import SelectFeature
 from SelectModel import GetRegressor
 from metric_score import AccuracyMetric as metric
-
+from ProcessTheData import ProcessTheData
+from CONFIG import *
 
 data = '../data/train.csv'
-train_data = pd.read_csv(data)
+#train_data = pd.read_csv(data)
+#print list(train_data)
+#sys.exit()
+train_data = ProcessTheData(data, miss_threshold=MISS_THRESHOLD,\
+                                  corr_threshold=CORR_THRESHOLD)
+sys.exit()
 data = '../data/test.csv'
-test_data = pd.read_csv(data)
+test_data = ProcessTheData(data, miss_threshold=MISS_THRESHOLD,
+                                 corr_threshold=CORR_THRESHOLD)
 #
 #TO BE CHANGED
 # Handle missing values, feature selection
