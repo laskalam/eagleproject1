@@ -43,7 +43,7 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None):
     missing = pd.DataFrame(train.isnull().sum())
     missing.columns=['No_missing_values']
     missing['Percentage_of_data_missing']=(missing.No_missing_values/train.shape[0])*100
-    features = missing[missing.Percentage_of_data_missing < miss_threshold].index
+    features = missing[missing.Percentage_of_data_missing <= miss_threshold].index
     train=train[features] 
     
     # Splitting data into numerical and categorical features 
