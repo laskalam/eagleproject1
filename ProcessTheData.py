@@ -1,4 +1,10 @@
-def ProcessTheData():
+
+# coding: utf-8
+
+# In[1]:
+
+def ProcessTheData(filename,miss_threshold=0,corr_threshold=None):
+    
     
     #Importing required packages
 
@@ -18,10 +24,10 @@ def ProcessTheData():
     
     
     # Read data and obtain coefficients
-    train = pd.read_csv(input('Enter the data path:'))
+    train = pd.read_csv(filename) #input('Enter the data path:'))
     
-    miss_threshold=float(input('Threshold for missing data (%):'))
-    corr_threshold=float(input('Threshold for correlation (0.0 - 1.0):'))
+    #miss_threshold=float(input('Threshold for missing data (%):'))
+    #corr_threshold=float(input('Threshold for correlation (0.0 - 1.0):'))
     
     #Removing duplicates
     train=train.drop_duplicates(keep='first', inplace=False)
@@ -133,7 +139,9 @@ def ProcessTheData():
 
     corr = train.corr()
     corr_with_SalePrice=pd.DataFrame(corr.SalePrice)
-    corr_with_SalePrice=corr_with_SalePrice[abs(corr_with_SalePrice.SalePrice)>corr_threshold]
+    if corr_threshold!=None:
+        corr_with_SalePrice=corr_with_SalePrice[abs(corr_with_SalePrice.SalePrice)>corr_threshold]
+        
     corr_with_SalePrice.index
     features=corr_with_SalePrice.index
     features=features.insert(0,"Id")
@@ -157,7 +165,7 @@ def ProcessTheData():
 
         #Fit the Model
         selector.fit(data)
-        features = selector.get_support(indices = True) 
+        features = selector.get_support(indices = True) #returns an array of integers corresponding to nonremoved features
         features = [column for column in data[features]] #Array of all nonremoved features' names
 
         #Format and Return
@@ -172,6 +180,4 @@ def ProcessTheData():
     train['SalePrice']=SalePrice
     
     return train
-
-
 
