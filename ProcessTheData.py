@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[10]:
 
 def ProcessTheData(filename,miss_threshold=0,corr_threshold=None):
     
@@ -36,7 +36,7 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None):
     train = train[train.GrLivArea < 4000]
     
     # Log transform the target for official scoring
-    train.SalePrice = np.log1p(train.SalePrice)
+    if filename='train.csv' train.SalePrice = np.log1p(train.SalePrice)
     
     #Removing features with more than x% missing data
 
@@ -166,8 +166,11 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None):
         #Fit the Model
         selector.fit(data)
         features = selector.get_support(indices = True) #returns an array of integers corresponding to nonremoved features
-        features = [column for column in data[features]] #Array of all nonremoved features' names
-
+        #print (features)
+        Features = list(data)
+        features = [Features[i] for i in features]
+        #features = [column for column in data[features]] #Array of all nonremoved features' names
+        #print (features)
         #Format and Return
         selector = pd.DataFrame(selector.transform(data))
         selector.columns = features
