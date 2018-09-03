@@ -1,8 +1,3 @@
-
-# coding: utf-8
-
-# In[47]:
-
 def ProcessTheData(filename,miss_threshold=0,corr_threshold=None,final_features=None,catnum_features=None):
     
     
@@ -32,19 +27,24 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None,final_features=
     #Removing duplicates
     train=train.drop_duplicates(keep='first', inplace=False)
 
-    # Looking for outliers, as indicated by the author of the dataset
-    train = train[train.GrLivArea < 4000]
+    
 
-    # Log transform the target for official scoring
-    if filename=='train.csv':
+    
+    if 'train.csv' in filename:
+        
+        # Looking for outliers, as indicated by the author of the dataset
+        train = train[train.GrLivArea < 4000]
+            
+        # Log transform the target for official scoring
         train.SalePrice = np.log1p(train.SalePrice)
-    #Removing features with more than x% missing data
+        
+        #Removing features with more than x% missing data
 
         missing = pd.DataFrame(train.isnull().sum())
         missing.columns=['No_missing_values']
         missing['Percentage_of_data_missing']=(missing.No_missing_values/train.shape[0])*100
         missing = missing[missing.Percentage_of_data_missing <= miss_threshold]
-
+        train=train[missing.index]
 
     # Splitting data into numerical and categorical features 
 
@@ -122,7 +122,11 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None,final_features=
         ####################Processing numerical data################################
 
         # Handle missing values for numerical features by using median as replacement
-        train_num = train_num.fillna(train_num.median())
+        train_num = train_num.fillna(train_num.median(),inplace=True)
+        
+       
+    
+
 
         # Log transform of the skewed numerical features to lessen impact of outliers
         # As a general rule of thumb, a skewness with an absolute value > 0.5 is considered at least moderately skewed
@@ -202,7 +206,7 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None,final_features=
 
 
         # Splitting data into numerical and categorical features 
-
+        
         if catnum_features!=None:
             categorical_features = catnum_features[0]
             numerical_features = catnum_features[1]
@@ -210,14 +214,8 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None,final_features=
             train_num=train[numerical_features]
             train_cat = train[categorical_features]
 
-        else:
 
-            categorical_features = []
-            numerical_features = []
-            train_num=train[numerical_features]
-            train_cat = train[categorical_features]
-
-        print (numerical_features,categorical_features)
+        
         ####################Processing categorical data################################
 
         # Handle missing values for features where median/mean/mode doesn't make sense
@@ -284,6 +282,12 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None,final_features=
 
         # Handle missing values for numerical features by using median as replacement
         train_num = train_num.fillna(train_num.median())
+        
+
+        # Standardize numerical features
+        stdSc = StandardScaler()
+        #train_num = pd.DataFrame(stdSc.fit_transform(train_num), index=train_num.index, columns=train_num.columns)
+
 
         # Log transform of the skewed numerical features to lessen impact of outliers
         # As a general rule of thumb, a skewness with an absolute value > 0.5 is considered at least moderately skewed
@@ -299,8 +303,10 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None,final_features=
 
         train=train[final_features]
 
-        train=train[~train.SalePrice.isnull()]
+    
         
         
         return train
+
+
 
