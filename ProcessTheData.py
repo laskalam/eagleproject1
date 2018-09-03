@@ -44,7 +44,7 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None,final_features=
         missing.columns=['No_missing_values']
         missing['Percentage_of_data_missing']=(missing.No_missing_values/train.shape[0])*100
         missing = missing[missing.Percentage_of_data_missing <= miss_threshold]
-
+        train=train[missing.index]
 
     # Splitting data into numerical and categorical features 
 
@@ -306,7 +306,6 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None,final_features=
         
         
         return train
-
 
 
 
