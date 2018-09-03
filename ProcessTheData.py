@@ -224,6 +224,7 @@ def ProcessTheData(filename,miss_threshold=0,corr_threshold=None,final_features=
 
 
         # BsmtQual etc : data description says NA for basement features is "no basement"
+        print list(train_cat)
         train_cat.loc[:, "BsmtQual"] = train_cat.loc[:, "BsmtQual"].fillna("No")
         train_cat.loc[:, "BsmtCond"] = train_cat.loc[:, "BsmtCond"].fillna("No")
         train_cat.loc[:, "BsmtExposure"] = train_cat.loc[:, "BsmtExposure"].fillna("No")

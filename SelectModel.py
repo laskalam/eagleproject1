@@ -19,6 +19,8 @@ def GetRegressor(TYPE):
         TypeOfRegression = 'linear_model'
     if TYPE in ['DTR', 'ETR']:
         TypeOfRegression = 'tree'
+    if TYPE in ['SVM']:
+        TypeOfRegression = 'svm'
     #Ensemble
     if TYPE == 'ABR':
         regressor = 'AdaBoostRegressor' 
@@ -43,7 +45,7 @@ def GetRegressor(TYPE):
         regressor = 'HuberRegressor' #Good for outliers
         from sklearn.linear_model import HuberRegressor as Regressor
     if TYPE == 'SGD':
-        regressor = 'SGRRegressor' #Good for outliers
+        regressor = 'SGDRegressor' #Good for outliers
         from sklearn.linear_model import SGDRegressor as Regressor
     #Tree algorithm
     if TYPE == 'DTR':
@@ -52,7 +54,10 @@ def GetRegressor(TYPE):
     if TYPE == 'ETR':
         regressor = 'ExtraTreeRegressor'#Extremely randomized tree
         from sklearn.tree import ExtraTreeRegressor as Regressor
-
+    #SVM
+    if TYPE == 'SVM':
+        regressor = 'LinearSVR'
+        from sklearn.svm import LinearSVR as Regressor
     return Regressor, regressor , TypeOfRegression
 
 if __name__ == "__main__":
