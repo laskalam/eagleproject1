@@ -1,3 +1,4 @@
+import os
 import sys
 import numpy as np
 import pandas as pd
@@ -21,23 +22,24 @@ import lightgbm as lgb
 from dataprocessing import ProcessTheData
 from metric_score import AccuracyMetric, rmseCV
 from ModelRamblings import AveragingModels, StackingModels
-
-
+from subset import subset_sum
 
 train_path = '../../data/train.csv'
 test_path = '../../data/test.csv'
     
 
 
+newdirectory = 'Test1'
+
+if not os.path.exists(newdirectory):
+    #Create a new directory
+    os.makedirs(newdirectory)
 
 
 
 
+def model(train,test, y_train, train_ID, test_ID, fractions = [[0.60, 0.20, 0.20]], file_ID=0): 
 
-
-def model(train,test, y_train, train_ID, test_ID, fractions = [0.60, 0.20, 0.20], file_ID=0): 
-
-    X, Y, Z = fractions
 
     # LASSO Regression
     lasso = make_pipeline(RobustScaler(), Lasso(alpha =0.0005, random_state=1))
@@ -126,49 +128,52 @@ def model(train,test, y_train, train_ID, test_ID, fractions = [0.60, 0.20, 0.20]
     sys.stdout.write('rmse LGBM: %.4f\n'%AccuracyMetric(y_train, lgb_train_pred)[0])
     
     #sys.stdout.write('rmse Ensemble (final): %.4f\n'%AccuracyMetric(y_train,stacked_train_pred*0.70 + xgb_train_pred*0.15 + lgb_train_pred*0.15 )[0])
-    sys.stdout.write('rmse Ensemble (final): %.4f\n'%AccuracyMetric(y_train,stacked_train_pred*X + xgb_train_pred*Y + lgb_train_pred*Z)[0])
+    file_rmse = '%s/rmse.txt'%newdirectory
+    file_ = open(file_rmse, 'w')
+    for j, frac in enumerate(fractions):
+        X, Y, Z = frac
+        rmse = AccuracyMetric(y_train,stacked_train_pred*X + xgb_train_pred*Y + lgb_train_pred*Z)[0]
+        sys.stdout.write('rmse Ensemble (final): %.4f\n'%rmse)
+        file_.write('%.5f\n'%rmse)
+        #Final prediction 
+        #ensemble = stacked_pred*0.70 + xgb_pred*0.15 + lgb_pred*0.15
+        ensemble = stacked_pred*X + xgb_pred*Y + lgb_pred*Z
 
-    #Final prediction 
-    #ensemble = stacked_pred*0.70 + xgb_pred*0.15 + lgb_pred*0.15
-    ensemble = stacked_pred*X + xgb_pred*Y + lgb_pred*Z
-
-    sub = pd.DataFrame()
-    sub['Id'] = test_ID
-    sub['SalePrice'] = ensemble
-    output_name = 'output%d.csv'%file_ID
-    sub.to_csv(output_name,index=False)
-    sys.stdout.write('%s saved \n'%output_name)
-
-
+        sub = pd.DataFrame()
+        sub['Id'] = test_ID
+        sub['SalePrice'] = ensemble
+        output_name = '%s/output%d.csv'%(newdirectory, file_ID+j)
+        sub.to_csv(output_name,index=False)
+        sys.stdout.write('%s saved \n'%output_name)
+    file_.close()
+    sys.stdout.write('%s saved \n'%file_rmse)
 ### MAIN
 train,test, y_train, train_ID, test_ID = ProcessTheData(train_path, test_path)
 ##one can do a feature selection here
 #selected_features = ...
 #train = train[selected_features]
 #test = test[selected_features]
-N = 2
-step = 1./N
-fractions = [1., 0., 0.]
-fraction_file = 'Fractions.txt'
+N = 20
+fraction_file = '%s/Fractions.txt'%newdirectory
 file_ = open(fraction_file, 'w')
-for i in range(N):
+#Mika
+M = 0
+ss = subset_sum(np.arange(0, 1.1, 0.1), 1., init=0)
+##Munira
+#M = 20
+#ss = subset_sum(np.arange(0, 1.1, 0.1), 1., init=20)
+##Theo
+#M = 40
+#ss = subset_sum(np.arange(0, 1.1, 0.1), 1., init=40)
     
-    #code your proportion of stacked, xgb and lgb
-    #the sum has to be = 1
+#code your proportion of stacked, xgb and lgb
+#print '%.2f   %.2f   %.2f\n'%(fractions[0], fractions[1], fractions[2])
+for fractions in ss:
     file_.write('%.2f   %.2f   %.2f\n'%(fractions[0], fractions[1], fractions[2]))
-    model(train,test, y_train, train_ID, test_ID, fractions=fractions, file_ID=i) 
-    #Mika
-    fractions[0] -= step
-    fractions[1] += step
-    ##Theo
-    #fractions[0] -= step
-    #fractions[2] += step
-    ##Munira
-    #fractions[0] -= step
-    #fractions[1] += step
-    #fractions[2] 
 file_.close()
 sys.stdout.write('%s saved\n'%fraction_file)
+model(train,test, y_train, train_ID, test_ID, fractions=ss, file_ID=M) 
+
 sys.stdout.write('=====================================\n')
 sys.stdout.write('Success EAGLE\n')
 sys.stdout.write('=====================================\n')
