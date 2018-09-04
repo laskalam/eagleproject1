@@ -65,7 +65,7 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
     train.SalePrice = np.log1p(train.SalePrice)
 
     y_train = train.SalePrice.values
-    train=train.drop('SalePrice',axis=1)
+  
     #Removing features with more than x% missing data
 
     missing = pd.DataFrame(train.isnull().sum())
@@ -213,11 +213,13 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
 
     train=VarianceThreshold_selector(train)
     final_features=train.columns
-    train['SalePrice']=SalePrice
+    train['SalePrice']=y_train
 
     y_train=y_train[~train.SalePrice.isnull()]
     train=train[~train.SalePrice.isnull()]
 
+    train=train.drop('SalePrice',axis=1)
+    
 
 #Preprocessing test data
 
