@@ -20,6 +20,7 @@ import xgboost as xgb
 import lightgbm as lgb
 
 from dataprocessing import ProcessTheData
+#from ProcessTheData import ProcessTheData
 from metric_score import AccuracyMetric, rmseCV
 from ModelRamblings import AveragingModels, StackingModels
 from subset import subset_sum
@@ -29,7 +30,7 @@ test_path = '../../data/test.csv'
     
 
 
-newdirectory = 'Test1'
+newdirectory = 'myTest'
 
 if not os.path.exists(newdirectory):
     #Create a new directory
@@ -149,6 +150,7 @@ def model(train,test, y_train, train_ID, test_ID, fractions = [[0.60, 0.20, 0.20
     sys.stdout.write('%s saved \n'%file_rmse)
 ### MAIN
 train,test, y_train, train_ID, test_ID = ProcessTheData(train_path, test_path)
+print list(train), list(test)
 ##one can do a feature selection here
 #selected_features = ...
 #train = train[selected_features]
@@ -172,7 +174,8 @@ for fractions in ss:
     file_.write('%.2f   %.2f   %.2f\n'%(fractions[0], fractions[1], fractions[2]))
 file_.close()
 sys.stdout.write('%s saved\n'%fraction_file)
-model(train,test, y_train, train_ID, test_ID, fractions=ss, file_ID=M) 
+#model(train,test, y_train, train_ID, test_ID, fractions=ss, file_ID=M) 
+model(train,test, y_train, train_ID, test_ID, file_ID=M) 
 
 sys.stdout.write('=====================================\n')
 sys.stdout.write('Success EAGLE\n')
