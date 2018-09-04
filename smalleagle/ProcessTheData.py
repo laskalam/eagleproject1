@@ -1,4 +1,3 @@
-
 import sys
 import numpy as np
 import pandas as pd
@@ -160,19 +159,9 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
     skewed_features = skewness.index
     train_num[skewed_features] = np.log1p(train_num[skewed_features])
 
-    #Combining numerical and categorical data#
-
-    # Join categorical and numerical features
-    train = pd.concat([train_num, train_cat], axis = 1)
-
-
-
-
     #Removing features with less than x correlation with the SalePrice
 
-
-
-    corr = train.corr()
+    corr = train_num.corr()
 
     corr_with_SalePrice=pd.DataFrame(corr.SalePrice)
     if corr_threshold!=None:
@@ -181,7 +170,15 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
     corr_with_SalePrice.index
     features=corr_with_SalePrice.index
 
-    train=train[features]
+    train_num=train_num[features]
+
+    # Join categorical and numerical features
+    train = pd.concat([train_num, train_cat], axis = 1)
+
+
+
+
+
 
 
     #Removing features with low variance
