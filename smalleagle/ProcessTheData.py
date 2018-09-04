@@ -48,7 +48,6 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
     test.drop('Id', axis = 1, inplace = True)
 
   
-    y_train = train.SalePrice.values
     #display_distrib(train, 'SalePrice')
     
     sys.stdout.write('Train data shape: %d, %d\n'%(train.shape))
@@ -59,13 +58,14 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
     # Looking for outliers, as indicated by the author of the dataset
     # analyze and remove huge outliers: GrLivArea, ...
     #display_outlier(train, 'GrLivArea')
-    train = train.drop(train[(train['GrLivArea']>GrLivAreaLim) &
-                              (train['SalePrice']>SalePriceLim)].index)
- 
-
+    i_ =  train[(train['GrLivArea']>GrLivAreaLim) &
+                              (train['SalePrice']>SalePriceLim)].index
+    train = train.drop(i_)
+    
     # Log transform the target for official scoring
     train.SalePrice = np.log1p(train.SalePrice)
 
+    y_train = train.SalePrice.values
     #Removing features with more than x% missing data
 
     missing = pd.DataFrame(train.isnull().sum())
@@ -150,9 +150,8 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
     #Processing numerical data#
     
     # Handle missing values for numerical features by using median as replacement
-    train_num = pd.DataFrame(train_num.fillna(train_num.median(),inplace=True))
-    #print(type(train_num))
-
+    #train_num = pd.DataFrame(train_num.fillna(train_num.median(),inplace=True))
+    train_num = train_num.fillna(train_num.median())
 
     # Log transform of the skewed numerical features to lessen impact of outliers
     # As a general rule of thumb, a skewness with an absolute value > 0.5 is considered at least moderately skewed
@@ -174,6 +173,7 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
 
 
     corr = train.corr()
+
     corr_with_SalePrice=pd.DataFrame(corr.SalePrice)
     if corr_threshold!=None:
         corr_with_SalePrice=corr_with_SalePrice[abs(corr_with_SalePrice.SalePrice)>corr_threshold]
@@ -217,6 +217,7 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
     final_features=train.columns
     train['SalePrice']=SalePrice
 
+    y_train=y_train[~train.SalePrice.isnull()]
     train=train[~train.SalePrice.isnull()]
 
 
