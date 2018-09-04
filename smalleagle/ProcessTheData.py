@@ -150,8 +150,8 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
     #Processing numerical data#
     
     # Handle missing values for numerical features by using median as replacement
-    train_num = train_num.fillna(train_num.median(),inplace=True)
-
+    train_num = pd.DataFrame(train_num.fillna(train_num.median(),inplace=True))
+    #print(type(train_num))
 
 
     # Log transform of the skewed numerical features to lessen impact of outliers
@@ -180,7 +180,6 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
 
     corr_with_SalePrice.index
     features=corr_with_SalePrice.index
-    features=features.insert(0,"Id")
 
     train=train[features]
 
@@ -299,8 +298,10 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
 
     # Handle missing values for numerical features by using median as replacement
     test_num = test_num.fillna(test_num.median())
-
-
+    #print(type(test_num))
+    test_num=pd.DataFrame(test_num)
+    #print(type(test_num))
+    
     # Log transform of the skewed numerical features to lessen impact of outliers
     # As a general rule of thumb, a skewness with an absolute value > 0.5 is considered at least moderately skewed
     skewness = test_num.apply(lambda x: skew(x))
@@ -319,6 +320,7 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,SalePriceLim=500000,
 
 
     return train,test, y_train, train_ID, test_ID
+
 
 
 
