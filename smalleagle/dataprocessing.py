@@ -5,7 +5,9 @@ import seaborn as sns
 from sklearn.preprocessing import LabelEncoder
 
 def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,
-                   SalePriceLim=300000, TopMissingData=20):
+                   SalePriceLim=500000,miss_threshold=50.0,corr_threshold=0.5, TopMissingData=20):
+#def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,
+#                   SalePriceLim=300000, TopMissingData=20):
     sys.stdout.write('Training data: %s\n Testing data: %s\n'
                      %(train_path,test_path))
     #Load the data
@@ -48,7 +50,7 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,
     missing_data = pd.DataFrame({'Missing Ratio' :all_data_na})
     sys.stdout.write('======================\n')
     sys.stdout.write('The discarded features are: Features & % of missing values\n')
-    print (all_data_na)
+
     #for md in missing_data:
     #    sys.stdout.write('%s    '%md)
     sys.stdout.write('\n======================\n')
@@ -125,9 +127,19 @@ def ProcessTheData(train_path, test_path, GrLivAreaLim=4000,
     #Make dummies
     all_data = pd.get_dummies(all_data)
     sys.stdout.write('Data shape after dummies: %d, %d\n'%all_data.shape)
-    
-    
-    
+   
+    #Correlation cleaning 
+    train = all_data[:ntrain]
+    train['SalePrice'] = y_train
+    corr = train.corr()
+    corr_with_SalePrice=pd.DataFrame(corr.SalePrice)
+    if corr_threshold!=None:
+        corr_with_SalePrice=corr_with_SalePrice[abs(corr_with_SalePrice.SalePrice)>corr_threshold]
+    corr_with_SalePrice.index
+    features=corr_with_SalePrice.index
+    all_data = all_data[features.drop('SalePrice')]
+
+ 
     train = all_data[:ntrain]
     test = all_data[ntrain:]
     return train,test, y_train, train_ID, test_ID
