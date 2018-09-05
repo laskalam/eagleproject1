@@ -7,8 +7,8 @@ from sklearn.preprocessing import LabelEncoder
 from scipy.special import boxcox1p
 
 
-
-
+from sklearn.model_selection import GridSearchCV
+from sklearn import decomposition
 from sklearn.linear_model import ElasticNet, Lasso, BayesianRidge, LassoLarsIC
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.kernel_ridge import KernelRidge
@@ -30,7 +30,7 @@ test_path = '../../data/test.csv'
     
 
 
-newdirectory = 'myTest'
+newdirectory = 'myTest3'
 
 if not os.path.exists(newdirectory):
     #Create a new directory
@@ -42,9 +42,18 @@ if not os.path.exists(newdirectory):
 def model(train,test, y_train, train_ID, test_ID, fractions = [[0.60, 0.20, 0.20]], file_ID=0): 
 
 
+    ##RandomForest
+    #n = 1000#[20, 100, 200, 500, 1000, 1500, 2000, 2500]
+    #RF = make_pipeline(RobustScaler(), RandomForestRegressor(n_estimators=n))
+    #
+    ##rmse = rmseCV(lasso, pca.transform(train), y_train)
+    #rmse = rmseCV(RF, train, y_train)
+    #sys.stdout.write("RF rmse(cv): %.4f (std=%.4f)\n"%(rmse.mean(), rmse.std()))
+    #
     # LASSO Regression
     lasso = make_pipeline(RobustScaler(), Lasso(alpha =0.0005, random_state=1))
     
+    #rmse = rmseCV(lasso, pca.transform(train), y_train)
     rmse = rmseCV(lasso, train, y_train)
     sys.stdout.write("Lasso rmse(cv): %.4f (std=%.4f)\n"%(rmse.mean(), rmse.std()))
     
@@ -63,7 +72,18 @@ def model(train,test, y_train, train_ID, test_ID, fractions = [[0.60, 0.20, 0.20
     sys.stdout.write("Kernel Ridge rmse(cv): %.4f (std=%.4f)\n"%(rmse.mean(), rmse.std()))
     
     # Gradient Boosting Regression
-    GBoost = GradientBoostingRegressor(n_estimators=3000, learning_rate=0.05,
+    #parameters = {
+    #              'n_estimators':range(1000,3500, 500), 'learning_rate':np.arange(0.02,0.07, 0.01),
+    #              'max_depth':[3,4,5,6], 'max_features':['sqrt'],
+    #              'min_samples_leaf':[5,10,15,20], 'min_samples_split':[5,10,15],
+    #              'loss':['huber'], 'random_state':[2,4,6,8]
+    #              }
+    #clf = GridSearchCV(GradientBoostingRegressor(), parameters)
+    #clf.fit(train,y_train)
+    #print clf.best_params_
+    #sys.exit()
+    GBoost = GradientBoostingRegressor(
+                                       n_estimators=3000, learning_rate=0.05,
                                        max_depth=4, max_features='sqrt',
                                        min_samples_leaf=15, min_samples_split=10,
                                        loss='huber', random_state =5)
@@ -73,22 +93,35 @@ def model(train,test, y_train, train_ID, test_ID, fractions = [[0.60, 0.20, 0.20
 
 
     # XGBoost
-    model_xgb = xgb.XGBRegressor(colsample_bytree=0.4603, gamma=0.0468,
-    learning_rate=0.05, max_depth=3,
-    min_child_weight=1.7817, n_estimators=2200,
-    reg_alpha=0.4640, reg_lambda=0.8571,
-    subsample=0.5213, silent=1)
+    model_xgb = xgb.XGBRegressor(
+                                colsample_bytree=0.4603, gamma=0.0468,
+                                learning_rate=0.05, max_depth=3,
+                                min_child_weight=1.7817, n_estimators=2200,
+                                reg_alpha=0.4640, reg_lambda=0.8571,
+                                subsample=0.5213, silent=1
+                                #------------
+                                #colsample_bytree=0.4,
+                                #gamma=0.045,
+                                #learning_rate=0.07,
+                                #max_depth=20,
+                                #min_child_weight=1.5,
+                                #n_estimators=300,
+                                #reg_alpha=0.65,
+                                #reg_lambda=0.45,
+                                #subsample=0.95
+                                )
     
     rmse = rmseCV(model_xgb, train, y_train)
     sys.stdout.write("Xgboost rmse(cv): %.4f (std=%.4f)\n"%(rmse.mean(), rmse.std()))
 
     # LightGBM
-    model_lgb = lgb.LGBMRegressor(objective='regression',num_leaves=5,
-    learning_rate=0.05, n_estimators=720,
-    max_bin = 55, bagging_fraction = 0.8,
-    bagging_freq = 5, feature_fraction = 0.2319,
-    feature_fraction_seed=9, bagging_seed=9,
-    min_data_in_leaf =6, min_sum_hessian_in_leaf = 11)
+    model_lgb = lgb.LGBMRegressor(
+                                 objective='regression',num_leaves=5,
+                                 learning_rate=0.05, n_estimators=720,
+                                 max_bin = 55, bagging_fraction = 0.8,
+                                 bagging_freq = 5, feature_fraction = 0.2319,
+                                 feature_fraction_seed=9, bagging_seed=9,
+                                 min_data_in_leaf =6, min_sum_hessian_in_leaf = 11)
     
     
     rmse = rmseCV(model_lgb, train, y_train)
@@ -149,8 +182,7 @@ def model(train,test, y_train, train_ID, test_ID, fractions = [[0.60, 0.20, 0.20
     file_.close()
     sys.stdout.write('%s saved \n'%file_rmse)
 ### MAIN
-train,test, y_train, train_ID, test_ID = ProcessTheData(train_path, test_path)
-print list(train), list(test)
+train,test, y_train, train_ID, test_ID = ProcessTheData(train_path, test_path, TopMissingData=10, corr_threshold=None)
 ##one can do a feature selection here
 #selected_features = ...
 #train = train[selected_features]
